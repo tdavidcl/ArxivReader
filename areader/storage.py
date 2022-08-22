@@ -1,11 +1,13 @@
 import glob
 import json
 import datetime
+import os 
 
 from .arvxivlib import *
 
-config_file = "config.json"
-storage_file = "db.json"
+storage_dir = "storage"
+config_file = storage_dir + "/config.json"
+storage_file = storage_dir + "/db.json"
 
 datetime_frmt = "%d/%m/%Y %H:%M:%S"
 
@@ -20,6 +22,7 @@ def date_to_str(date) :
 def init_storage():
     try: 
         os.mkdir("storage")
+        
     except :
         print("")
 
@@ -113,6 +116,14 @@ class ArticleDb :
 
         return sorted(tmp, key=lambda d: d['published'],reverse=True) 
         
+    def get_all_arts(self):
+        tmp = []
+
+        for k in self.db.keys():
+            tmp.append(self.db[k])
+
+        return sorted(tmp, key=lambda d: d['published'],reverse=True) 
+        
     
     
     def get_unread_alert_arts(self):
@@ -144,11 +155,60 @@ class ArticleDb :
         return sorted(tmp, key=lambda d: d['published'],reverse=True) 
         
 
+    def get_favorites_arts(self):
+        tmp = []
+
+        for k in self.db.keys():
+            if (self.db[k]["favorite"]):
+                tmp.append(self.db[k])
+
+        return sorted(tmp, key=lambda d: d['published'],reverse=True) 
+
+
+    def get_favorites_arts(self):
+        tmp = []
+
+        for k in self.db.keys():
+            if (self.db[k]["favorite"]):
+                tmp.append(self.db[k])
+
+        return sorted(tmp, key=lambda d: d['published'],reverse=True) 
+
+
+    def get_saved_arts(self):
+        tt = self.get_saved_hashs()
+
+        tmp = []
+        for k in tt:
+            tmp.append(self.db[k])
+
+        return sorted(tmp, key=lambda d: d['published'],reverse=True) 
+
+
     def set_read(self,hsh):
         self.db[hsh]["read"] = True
         self.save_db()
-    
 
+    def swicth_favorite(self,hsh):
+
+        old_st = self.db[hsh]["favorite"]
+        self.db[hsh]["favorite"] = not old_st 
+        self.save_db()
+
+    def get_saved_hashs(self):
+        hshs = []
+        for fname in glob.glob("storage/*.pdf"):
+            hshs.append(fname.replace(".pdf", "").replace("storage/", ""))
+        return hshs
+
+
+    def save_art(self,hsh):
+        if not hsh in self.get_saved_hashs():
+            download_pdf(self.db[hsh]["id"].replace("http://arxiv.org/abs/",""),storage_dir,str(hsh)+".pdf")
+        
+    def open_art(self,hsh):
+        fname = "storage/"+hsh+".pdf"
+        os.system("open -a preview "+fname)
     
 
 

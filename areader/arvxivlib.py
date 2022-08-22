@@ -29,3 +29,8 @@ def get_article_title(id_art):
     search = arxiv.Search(id_list=[id_art])
     paper = next(search.results())
     return paper.title
+
+def download_pdf(id_art,dir,fname):
+    search = arxiv.Search(id_list=[id_art])
+    paper = next(search.results())
+    paper.download_pdf(dirpath=dir, filename=fname)

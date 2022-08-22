@@ -46,13 +46,22 @@ def ui_main():
     last_in = ""
     st = {}
 
+
+
+    modes_list = [
+        "Unread articles",
+        "Unread articles (alert)",
+        "Favorite articles",
+        "Saved articles",
+        "All articles"]
+
     while True:
 
         mx,my = stdscr.getmaxyx()
         display_ui_base(stdscr,current_mode)
 
 
-        if current_mode in ["Unread articles","Unread articles (alert)"]:
+        if current_mode in modes_list:
             art = st["artlst"][st["index"]]
             
             
@@ -82,6 +91,23 @@ def ui_main():
         if last_in == b'fetch':
             adb.fetch_articles()
 
+
+
+        if last_in == b'show all':
+            current_mode = "All articles"
+            st["artlst"] = adb.get_all_arts()
+            st["index"] = 0
+
+        if last_in == b'show saved':
+            current_mode = "Saved articles"
+            st["artlst"] = adb.get_saved_arts()
+            st["index"] = 0
+        
+        if last_in == b'show fav':
+            current_mode = "Favorite articles"
+            st["artlst"] = adb.get_favorites_arts()
+            st["index"] = 0
+
         if last_in == b'show unread':
             current_mode = "Unread articles"
             st["artlst"] = adb.get_unread_arts()
@@ -94,11 +120,11 @@ def ui_main():
 
 
 
-        if current_mode in ["Unread articles","Unread articles (alert)"]:
+        if current_mode in modes_list:
             if last_in == b'':
                 st["index"] += 1
 
-            if last_in == b'read':
+            if last_in in [b'r',b'read']:
                 art = st["artlst"][st["index"]]
 
                 adb.set_read(art["hash"])
@@ -106,6 +132,20 @@ def ui_main():
 
                 if st["index"] > len(st["artlst"]) - 1:
                     st["index"] = len(st["artlst"]) - 1
+
+            if last_in == b'save':
+                art = st["artlst"][st["index"]]
+                adb.save_art(art["hash"])
+
+            if last_in == b'star':
+                art = st["artlst"][st["index"]]
+                adb.swicth_favorite(art["hash"])
+
+            if last_in == b'open':
+                art = st["artlst"][st["index"]]
+                adb.save_art(art["hash"])
+                adb.open_art(art["hash"])
+
                 
 
 
